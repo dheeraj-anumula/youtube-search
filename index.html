@@ -38,7 +38,9 @@
 
   <body>
 
-    <h1>Youtube Search</h1>
+    <header>
+      <h1>Youtube Search</h1>
+    </header>
 
     <form>
 
@@ -48,20 +50,27 @@
 
     </form>
 
-    
-
     <ul>
-
- 
 
     </ul>
 
-    <div>
-      <button type="button" class="next">Next</button>
-      <button type="button" class="prev">Previous</button>
-    </div>
+    <footer>
+      <div class="next-div">
+        <button type="button" class="next">Next</button>
+      </div>
+      <div class="prev-div">
+        <button type="button" class="prev">Previous</button>
+      </div>
+    </footer>
 
-    <script defer src="app1.js"/>
+    <template id="video-content">
+      <div class="content overflow">
+        <p class="title"></p>
+        <p class="desc"></p>
+      </div>
+    </template>
+
+    <script defer src="utilities.js"/>
 
     
 
