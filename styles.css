@@ -36,13 +36,9 @@ li {
 
 }
 
-footer{
-  margin-top: -10px;
-}
 
-
-.content {
-  margin:0 0 0 10px;
+.video-tag {
+  margin:0 10px 0 0px;
 }
 
 
@@ -62,6 +58,9 @@ footer{
 }
 
 
+.pagination{
+  margin-top: -10px;
+}
 
 .next-div{
   float: right;

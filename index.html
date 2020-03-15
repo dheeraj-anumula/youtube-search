@@ -41,7 +41,7 @@
     <header>
       <h1>Youtube Search</h1>
     </header>
-
+    
     <form>
 
         <input type="text" id="input" placeholder="Search">
@@ -50,21 +50,25 @@
 
     </form>
 
-    <ul>
+    <section class="body-content">
+      <section class="videos">
+        <ul>
 
-    </ul>
+        </ul>
+      </section>
 
-    <footer>
-      <div class="prev-div">
-        <button type="button" class="prev">Previous</button>
-      </div>
-      <div class="next-div">
-        <button type="button" class="next">Next</button>
-      </div>
-    </footer>
+      <section class="pagination">
+        <div class="prev-div">
+          <button type="button" class="prev">Previous</button>
+        </div>
+        <div class="next-div">
+          <button type="button" class="next">Next</button>
+        </div>
+      </section>
+    </section>
 
-    <template id="video-content">
-      <div class="content overflow">
+    <template id="video-tag">
+      <div class="overflow">
         <p class="title"></p>
         <p class="desc"></p>
       </div>

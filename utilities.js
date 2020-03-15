@@ -15,7 +15,7 @@ var noOfVideos = Math.floor(width / 320) * Math.floor(height / 260);
 
 const form = document.querySelector('form');
 form.addEventListener('submit', e => e.preventDefault())
-
+const errorPara=document.querySelector(".body-content");
 
 function displaySearchResult(pageRoute) {
     return new Promise(function elements(resolve) {
@@ -78,7 +78,7 @@ function displaySearchResult(pageRoute) {
                             // listItem.innerHTML = '<iframe src=https://www.youtube.com/embed/' + json.items[i].id + '></iframe> ';
                             listItem.innerHTML = '<a href=https://www.youtube.com/watch?v='+json.items[i].id+'><img src='+json.items[i].snippet.thumbnails.medium.url+' /> </a>';
                             
-                            var template =  document.querySelector("#video-content");
+                            var template =  document.querySelector("#video-tag");
                             var cont = template.content.cloneNode(true);
 
                             var title = cont.querySelector(".title");
@@ -106,31 +106,16 @@ function displaySearchResult(pageRoute) {
 
                     .catch(function (error) {
 
-                        var p = document.createElement('p');
-
-                        p.appendChild(
-
-                            document.createTextNode('Error: ' + error.message)
-                            
-
-                        );
                         console.log(error);
-                        document.body.insertBefore(p, myList);
+                        errorPara.innerHTML='<p>'+error.message+'</p>';
 
                     });
             })
             .catch(function (error) {
 
-                var p = document.createElement('p');
-
-                p.appendChild(
-
-                    document.createTextNode('Error: ' + error.message)
-
-                );
                 console.log(error);
 
-                document.body.insertBefore(p, myList);
+                errorPara.innerHTML='<p>'+error.message+'</p>';
 
             });
 
@@ -145,13 +130,16 @@ const prevButton= document.querySelector(".prev-div");
 var pageToken;
 var firstPageToken;
 function search() {
+    prevButton.style.display="none";
     console.log(pageToken);
     searchText = document.querySelector("#input").value;
     myList.innerHTML="";
     var _pageToken = displaySearchResult().then(function (pages) { return pages; });
     pageToken = _pageToken;
     firstPageToken=_pageToken;
-    nextButton.style.display="block";
+    if(noOfVideos.length!==0){
+        nextButton.style.display="block";
+    }
 }
 
 document.querySelector(".next").addEventListener("click", ()=>{pageToken.then(function (pages){ next(pages.nextPage);})});
