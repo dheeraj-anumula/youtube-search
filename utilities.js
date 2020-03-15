@@ -5,14 +5,13 @@ var width = window.innerWidth;
 var height = window.innerHeight;
 var nextPage;
 var prevPage;
-// console.log('width' + width + ' height' + height);
+console.log('width' + width + ' height' + height);
 
 var videos = [];
 var searchText = 'js';
 
-var noOfVideos = Math.floor(width / 322) * Math.floor(height / 265);
+var noOfVideos = Math.floor(width / 320) * Math.floor(height / 260);
 // console.log(noOfVideos);
-myList.style.gridTemplateColumns = '1fr '.repeat(Math.floor(width / 322));
 
 const form = document.querySelector('form');
 form.addEventListener('submit', e => e.preventDefault())
@@ -76,7 +75,8 @@ function displaySearchResult(pageRoute) {
 
                             // listItem.innerHTML = '<img src=' + json.items[i].snippet.thumbnails.high.url + '  />';
 
-                            listItem.innerHTML = '<iframe src=https://www.youtube.com/embed/' + json.items[i].id + '></iframe> ';
+                            // listItem.innerHTML = '<iframe src=https://www.youtube.com/embed/' + json.items[i].id + '></iframe> ';
+                            listItem.innerHTML = '<a href=https://www.youtube.com/watch?v='+json.items[i].id+'><img src='+json.items[i].snippet.thumbnails.medium.url+' /> </a>';
                             
                             var template =  document.querySelector("#video-content");
                             var cont = template.content.cloneNode(true);
@@ -139,44 +139,36 @@ function displaySearchResult(pageRoute) {
 }
 
 document.querySelector(".search").addEventListener("click", search);
+const nextButton= document.querySelector(".next-div");
+const prevButton= document.querySelector(".prev-div");
 
 var pageToken;
+var firstPageToken;
 function search() {
     console.log(pageToken);
     searchText = document.querySelector("#input").value;
     myList.innerHTML="";
     var _pageToken = displaySearchResult().then(function (pages) { return pages; });
     pageToken = _pageToken;
-    return _pageToken;
+    firstPageToken=_pageToken;
+    nextButton.style.display="block";
 }
-// document.querySelector(".next").addEventListener("click", next);
+
 document.querySelector(".next").addEventListener("click", ()=>{pageToken.then(function (pages){ next(pages.nextPage);})});
 
-
-
-// function next() {
-//     console.log(pageToken);
-//     pageToken=pageToken.then(function (pages) {
-
-//         myList.innerHTML = "";
-
-//         return displaySearchResult("&pageToken=" + pages.nextPage);
-//     })
-//         .then(function (pages) {
-//             return pages;
-//         });
-//     console.log(pageToken);
-// }
-
-function next(token) {
+function next(token,prevPage) {
 
     myList.innerHTML = "";
-
+    
     pageToken= displaySearchResult("&pageToken=" + token)
         .then(function (pages) {
             return pages;
         });
     console.log(pageToken);
+    prevButton.style.display="block";
+    if(prevPage && firstPageToken.then((pages)=>{return pages.prevPage===token})){
+        prevButton.style.display="none";
+    }
 }
 
-document.querySelector(".prev").addEventListener("click", ()=>{pageToken.then(function (pages){ next(pages.prevPage);})});
+document.querySelector(".prev").addEventListener("click", ()=>{pageToken.then(function (pages){ next(pages.prevPage,true);})});
