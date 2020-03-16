@@ -1,17 +1,10 @@
 "use strict"
 
-var myList = document.querySelector('ul');
-var width = window.innerWidth;
-var height = window.innerHeight;
-var nextPage;
-var prevPage;
-console.log('width' + width + ' height' + height);
-
-var videos = [];
-var searchText = 'js';
-
-var noOfVideos = Math.floor(width / 320) * Math.floor(height / 260);
-// console.log(noOfVideos);
+const myList = document.querySelector('ul');
+let width = window.innerWidth;
+let height = window.innerHeight-75;
+let searchText = 'js';
+let noOfVideos = Math.floor(width / (320+(width/320)*3)) * Math.floor(height / 260);
 
 const form = document.querySelector('form');
 form.addEventListener('submit', e => e.preventDefault())
@@ -20,105 +13,55 @@ const errorPara=document.querySelector(".body-content");
 function displaySearchResult(pageRoute) {
     return new Promise(function elements(resolve) {
 
-        fetch('https://www.googleapis.com/youtube/v3/search?key=AIzaSyDEo_WcwLiuGrJsnenmtYVfqfdWh8yFDac&type=video&part=snippet&maxResults=' + noOfVideos + '&q=' + searchText + (pageRoute || ""))
-
-            .then(function (response) {
-              console.log(response);
-                if (!response.ok) {
-
-                    throw new Error("HTTP error, status = " + response.status);
-
-                }
-
-                return response.json();
-
-            })
-
-            .then(function (json) {
+        fetchJson('https://www.googleapis.com/youtube/v3/search?key=AIzaSyCTmn2VL1-pni8B6M03bQHVvPV4zp0zUD4&type=video&part=snippet&maxResults=' + noOfVideos + '&q=' + searchText + (pageRoute || ""))
+            .then((json) => {
 
                 console.log(json);
-                videos = [];
-                for (var i = 0; i < json.items.length; i++) {
-                    videos.push(json.items[i].id.videoId);
-                }
+                let videos = [];
 
-                var pageToken={
+                json.items.map(item => videos.push(item.id.videoId));
+
+                let pageToken={
                     nextPage : json.nextPageToken,
                     prevPage : json.prevPageToken
                 }
                 
-                console.log('next Page---------' + nextPage);
-                
                 console.log('videos are' + videos.join(','));
-                fetch('https://www.googleapis.com/youtube/v3/videos?key=AIzaSyDEo_WcwLiuGrJsnenmtYVfqfdWh8yFDac&id=' + videos.toString() +
+                fetchJson('https://www.googleapis.com/youtube/v3/videos?key=AIzaSyCTmn2VL1-pni8B6M03bQHVvPV4zp0zUD4&id=' + videos.toString() +
                     '&part=snippet,statistics')
 
-                    .then(function (response) {
 
-                        if (!response.ok) {
-
-                            throw new Error("HTTP error, status = " + response.status);
-
-                        }
-
-                        return response.json();
-
-                    })
-
-                    .then(function (json) {
+                    .then( (json)=> {
 
                         console.log(json);
 
-                        for (var i = 0; i < json.items.length; i++) {
+                        json.items.map((item)=>{
 
-                            var listItem = document.createElement('li');
-
-                            // listItem.innerHTML = '<img src=' + json.items[i].snippet.thumbnails.high.url + '  />';
-
-                            // listItem.innerHTML = '<iframe src=https://www.youtube.com/embed/' + json.items[i].id + '></iframe> ';
-                            listItem.innerHTML = '<a href=https://www.youtube.com/watch?v='+json.items[i].id+'><img src='+json.items[i].snippet.thumbnails.medium.url+' /> </a>';
+                            let listItem = document.createElement('li');
+                        
+                            listItem.innerHTML = '<a href=https://www.youtube.com/watch?v='+item.id+'><img src='+item.snippet.thumbnails.medium.url+' /> </a>';
                             
-                            var template =  document.querySelector("#video-tag");
-                            var cont = template.content.cloneNode(true);
+                            const template =  document.querySelector("#video-tag");
+                            let cont = template.content.cloneNode(true);
+                        
+                            const title = cont.querySelector(".title");
+                            const desc=cont.querySelector(".desc");
+                        
+                            title.innerHTML = item.snippet.title;
+                            desc.innerHTML=item.snippet.channelTitle+' <br> '+item.statistics.viewCount+' views | Published On '+item.snippet.publishedAt.substr(0,10);
 
-                            var title = cont.querySelector(".title");
-                            var desc=cont.querySelector(".desc");
-
-                            title.innerHTML = json.items[i].snippet.title;
-                            // title.classList.add("overflow");
-
-                            desc.innerHTML=json.items[i].snippet.channelTitle+' <br> '+json.items[i].statistics.viewCount+' views | Published On '+json.items[i].snippet.publishedAt.substr(0,10);
                             listItem.appendChild(cont);
-
-                            // listItem.innerHTML += '<strong>' + json.items[i].snippet.description; + '</strong>';
-
-                            // content.innerHTML += '<br> ' + json.items[i].snippet.channelTitle + '.';
-
-
-
                             myList.appendChild(listItem);
+                        
+                        });
 
-                        }
-                        // return nextPage;
                         resolve(pageToken);
 
                     })
 
-                    .catch(function (error) {
-
-                        console.log(error);
-                        errorPara.innerHTML='<p>'+error.message+'</p>';
-
-                    });
+                    .catch( (error) =>  handleFetchError(error) );
             })
-            .catch(function (error) {
-
-                console.log(error);
-
-                errorPara.innerHTML='<p>'+error.message+'</p>';
-
-            });
-
+            .catch( (error) =>  handleFetchError(error) );
 
     })
 }
@@ -129,6 +72,22 @@ const prevButton= document.querySelector(".prev-div");
 
 var pageToken;
 var firstPageToken;
+function handleFetchError(error) {
+    console.log(error);
+    errorPara.innerHTML = '<p>' + error.message + '</p>';
+}
+
+function fetchJson(url) {
+    return fetch(url)
+        .then((response)=> {
+            console.log(response);
+            if (!response.ok) {
+                throw new Error("HTTP error, status = " + response.status);
+            }
+            return response.json();
+        });
+}
+
 function search() {
     prevButton.style.display="none";
     console.log(pageToken);
@@ -153,8 +112,13 @@ function next(token,prevPage) {
             return pages;
         });
     console.log(pageToken);
+    console.log('first page');
+    console.log(firstPageToken);
     prevButton.style.display="block";
-    if(prevPage && firstPageToken.then((pages)=>{return pages.prevPage===token})){
+    console.log(token);
+    // if(prevPage && firstPageToken.then((pages)=>{ console.log(pages.nextPage);console.log(token);return pages.nextPage.substr(0,5)+'Q'===token})){
+    if(token==='CAQQAQ'){
+        
         prevButton.style.display="none";
     }
 }
