@@ -37,6 +37,9 @@ li {
 
 }
 
+.error{
+  display:none;
+}
 
 .video-tag {
   margin:0 10px 0 0px;

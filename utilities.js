@@ -1,20 +1,23 @@
 "use strict"
 
-const myList = document.querySelector('ul');
-let width = window.innerWidth;
-let height = window.innerHeight - 75;
-let searchText = 'js';
-let noOfVideos = Math.floor(width / (320 + (width / 320) * 3)) * Math.floor(height / 260);
-
-const form = document.querySelector('form');
-form.addEventListener('submit', e => e.preventDefault())
-const errorPara = document.querySelector(".body-content");
 const API_KEY = properties.apiKey;
 
-function displaySearchResult(pageRoute) {
-    return new Promise(function elements(resolve) {
+function fetchJson(url) {
+    return fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("HTTP error, status = " + response.status);
+            }
+            return response.json();
+        });
+}
 
-        fetchJson('https://www.googleapis.com/youtube/v3/search?key=' + API_KEY + '&type=video&part=snippet&maxResults=' + noOfVideos + '&q=' + searchText + (pageRoute || ""))
+function displaySearchResult(myList,searchText,pageRoute) {
+
+    return new Promise( resolve => {
+
+        fetchJson('https://www.googleapis.com/youtube/v3/search?key=' + API_KEY + '&type=video&part=snippet&maxResults=' + 
+                noOfVideos + '&q=' + searchText + (pageRoute || ""))
             .then(json => {
 
                 let videos = [];
@@ -26,100 +29,35 @@ function displaySearchResult(pageRoute) {
                     prevPage: json.prevPageToken
                 }
 
-                // console.log('videos are' + videos.join(','));
-                fetchJson('https://www.googleapis.com/youtube/v3/videos?key=' + API_KEY + '&id=' + videos.toString() +
-                    '&part=snippet,statistics')
-
-
-                    .then(json => {
-
-                        // console.log(json);
-
-                        json.items.map((item) => {
-
-                            let listItem = document.createElement('li');
-
-                            listItem.innerHTML = '<a href=https://www.youtube.com/watch?v=' + item.id + '><img src=' + item.snippet.thumbnails.medium.url + ' /> </a>';
-
-                            const template = document.querySelector("#video-tag");
-                            let cont = template.content.cloneNode(true);
-
-                            const title = cont.querySelector(".title");
-                            const desc = cont.querySelector(".desc");
-
-                            title.innerHTML = item.snippet.title;
-                            desc.innerHTML = item.snippet.channelTitle + ' <br> ' + item.statistics.viewCount + ' views | Published On ' + item.snippet.publishedAt.substr(0, 10);
-
-                            listItem.appendChild(cont);
-                            myList.appendChild(listItem);
-
-                        });
-
-                        resolve(pageToken);
-
-                    })
-
-                    .catch(error => handleFetchError(error));
+                populateVideos(myList,videos, resolve, pageToken);
             })
             .catch(error => handleFetchError(error));
 
     })
 }
 
-document.querySelector(".search").addEventListener("click", search);
-const nextButton = document.querySelector(".next-div");
-const prevButton = document.querySelector(".prev-div");
 
-var pageToken;
-var firstPageToken;
-function handleFetchError(error) {
-    console.log(error);
-    errorPara.innerHTML = '<p>' + error.message + '</p>';
-    prevButton.style.display = "none";
-    nextButton.style.display = "none";
-}
-
-function fetchJson(url) {
-    return fetch(url)
-        .then(response => {
-            // console.log(response);
-            if (!response.ok) {
-                throw new Error("HTTP error, status = " + response.status);
-            }
-            return response.json();
+function populateVideos(myList,videos, resolve, pageToken) {
+    fetchJson('https://www.googleapis.com/youtube/v3/videos?key=' + API_KEY + '&id=' + videos.toString() +
+        '&part=snippet,statistics')
+        .then(json => {
+            json.items.map((item) => {
+                let listItem = document.createElement('li');
+                listItem.innerHTML = '<a href=https://www.youtube.com/watch?v=' + item.id + '><img src=' +
+                    item.snippet.thumbnails.medium.url + ' /> </a>';
+                const template = document.querySelector("#video-tag");
+                let cont = template.content.cloneNode(true);
+                const title = cont.querySelector(".title");
+                const desc = cont.querySelector(".desc");
+                title.innerHTML = item.snippet.title;
+                desc.innerHTML = item.snippet.channelTitle + ' <br> ' + item.statistics.viewCount
+                    + ' views | Published On ' + item.snippet.publishedAt.substr(0, 10);
+                listItem.appendChild(cont);
+                myList.appendChild(listItem);
+            });
+            resolve(pageToken);
+        })
+        .catch(error => {
+            handleFetchError(error);
         });
 }
-
-function search() {
-    prevButton.style.display = "none";
-    // console.log(pageToken);
-    searchText = document.querySelector("#input").value;
-    myList.innerHTML = "";
-    var _pageToken = displaySearchResult().then(function (pages) { return pages; });
-    pageToken = _pageToken;
-    firstPageToken = _pageToken;
-    if (noOfVideos.length !== 0) {
-        nextButton.style.display = "block";
-    }
-}
-
-document.querySelector(".next").addEventListener("click", () => { pageToken.then(function (pages) { next(pages.nextPage); }) });
-
-function next(token, prevPage) {
-
-    myList.innerHTML = "";
-
-    pageToken = displaySearchResult("&pageToken=" + token)
-        .then(function (pages) {
-            return pages;
-        });
-
-    prevButton.style.display = "block";
-    if (prevPage && token == "CAQQAQ") {
-
-        prevButton.style.display = "none";
-    }
-
-}
-
-document.querySelector(".prev").addEventListener("click", () => { pageToken.then(function (pages) { next(pages.prevPage, true); }) });
