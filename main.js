@@ -1,4 +1,5 @@
 "use strict"
+
 const nextButton = document.querySelector(".next-div");
 const prevButton = document.querySelector(".prev-div");
 const myList = document.querySelector('ul');
@@ -10,9 +11,13 @@ let firstPageToken;
 let searchText;
 
 let noOfVideos = (() => {
-    let width = window.innerWidth;
-    let height = window.innerHeight - 75;
-    return Math.floor(width / (320 + (width / 320) * 3)) * Math.floor(height / 260);
+    let rowGap=3;
+    let itemWidth=320;
+    let itemHeight=260;
+    let headerHeight=75;
+    let gridWidth = window.innerWidth / (itemWidth + (window.innerWidth / itemWidth) * rowGap);
+    let gridHeight = (window.innerHeight - headerHeight)/itemHeight;
+    return Math.floor(gridWidth) * Math.floor(gridHeight);
 })();
 
 
@@ -59,7 +64,6 @@ function navigate(token, prevPage) {
             if (pages.nextPage === (token.substr(0, 5)) + 'A') { prevButton.style.display = "none" }
         })
     }
-
 }
 
 
