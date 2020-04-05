@@ -1,7 +1,5 @@
 "use strict"
 
-const API_KEY = properties.apiKey;
-
 function fetchJson(url) {
     return fetch(url)
         .then(response => {
@@ -12,24 +10,33 @@ function fetchJson(url) {
         });
 }
 
-function displaySearchResult(myList,searchText,pageRoute) {
+function handleFetchError(error) {
 
-    return new Promise( resolve => {
+    console.log(error);
+    errorElement.style.display = "block";
+    errorElement.innerHTML = error.message;
+    prevDiv.style.display = "none";
+    nextDiv.style.display = "none";
+}
 
-        fetchJson('https://www.googleapis.com/youtube/v3/search?key=' + API_KEY + '&type=video&part=snippet&maxResults=' + 
-                noOfVideos + '&q=' + searchText + (pageRoute || ""))
+function getVideoIds(searchText, pageRoute) {
+
+    return new Promise(resolve => {
+
+        fetchJson('https://www.googleapis.com/youtube/v3/search?key=' + API_KEY + '&type=video&part=snippet&maxResults=' +
+            noOfVideos + '&q=' + searchText + "&pageToken=" + (pageRoute || ""))
             .then(json => {
 
-                let videos = [];
+                let videoIds = [];
 
-                json.items.map(item => videos.push(item.id.videoId));
+                json.items.map(item => videoIds.push(item.id.videoId));
 
                 let pageToken = {
                     nextPage: json.nextPageToken,
                     prevPage: json.prevPageToken
                 }
 
-                populateVideos(myList,videos, resolve, pageToken);
+                resolve({videoIds, pageToken});
             })
             .catch(error => handleFetchError(error));
 
@@ -37,8 +44,8 @@ function displaySearchResult(myList,searchText,pageRoute) {
 }
 
 
-function populateVideos(myList,videos, resolve, pageToken) {
-    fetchJson('https://www.googleapis.com/youtube/v3/videos?key=' + API_KEY + '&id=' + videos.toString() +
+function populateVideos(myList, videoIds) {
+    fetchJson('https://www.googleapis.com/youtube/v3/videos?key=' + API_KEY + '&id=' + videoIds.toString() +
         '&part=snippet,statistics')
         .then(json => {
             json.items.map((item) => {
@@ -49,13 +56,14 @@ function populateVideos(myList,videos, resolve, pageToken) {
                 let cont = template.content.cloneNode(true);
                 const title = cont.querySelector(".title");
                 const desc = cont.querySelector(".desc");
+
                 title.innerHTML = item.snippet.title;
                 desc.innerHTML = item.snippet.channelTitle + ' <br> ' + item.statistics.viewCount
                     + ' views | Published On ' + item.snippet.publishedAt.substr(0, 10);
                 listItem.appendChild(cont);
                 myList.appendChild(listItem);
+                return true;
             });
-            resolve(pageToken);
         })
         .catch(error => {
             handleFetchError(error);

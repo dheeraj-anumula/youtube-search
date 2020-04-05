@@ -2,10 +2,15 @@ html {
     background-color: white;
     font-family: sans-serif;
   }
+body{
+  margin:-20px 0;
+}
 
  h1{
    text-align: center;
    margin-bottom: 0;
+   background-color: red;
+   padding: 10px 0;
  } 
 
 
@@ -64,8 +69,9 @@ li {
 
 
 .pagination{
-  margin-top: -10px;
   position: relative;
+  padding-bottom: 50px;
+  padding-top: 5px;
 }
 
 .next-div{
@@ -87,7 +93,12 @@ li {
   width: 100px;
   background-color: yellowgreen;
   color: white;
-  font-weight: 500;
-  border-radius: 10px;
-  
+  font-weight: 400;
+  font-size: 20px;
+  padding-top: 7px;
+  padding-bottom: 5px;
+}
+
+.btn:hover{
+  background-color:green ;
 }
