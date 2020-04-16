@@ -1,71 +1,54 @@
-
-
- 
-
 <!DOCTYPE html>
-
 <html>
 
-  <head>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width">
+  <title>Youtube Search</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
 
-    <meta charset="utf-8">
+<body>
 
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-
-    <meta name="viewport" content="width=device-width">
-
- 
-
-    <title>Fetch json example</title>
-
- 
-
-    <link rel="stylesheet" href="styles.css">
-
-    <!--[if lt IE 9]>
-
-      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-
-    <![endif]-->
-
-    
-
-    
-
-  </head>
-
- 
-
-  <body>
-
+  <header>
     <h1>Youtube Search</h1>
+  </header>
 
-    <form>
+  <form>
+    <input type="text" id="input" placeholder="Search">
+    <button type="submit" class="search">&#128269;</button>
+  </form>
 
-        <input type="text" placeholder="Search">
+  <p class="error" />
 
-        <button type="submit">&#128269;</button>
+  <section class="search-content">
+    <section class="videos">
+      <ul></ul>
+    </section>
+    <section class="pagination">
+      <div class="prev-div">
+        <button type="button" class="prev btn">Previous</button>
+      </div>
+      <div class="next-div">
+        <button type="button" class="next btn">Next</button>
+      </div>
+    </section>
+  </section>
 
-    </form>
+  <template id="video-tag">
+    <div>
+      <p class="title"></p>
+      <p class="desc"></p>
+    </div>
+  </template>
 
-    
+  <script src="resources/config.js"></script>
+  <script src="src/globalVariables.js"></script>
+  <script src="src/utilities.js"></script>
+  <script src="src/main.js"></script>
+  <script> addListeners();</script>
 
-    <ul>
-
- 
-
-    </ul>
-
- 
-
-    <script defer src="app.js"/>
-
-    
-
-  </body>
+</body>
 
 </html>
-
- 
-
- 
